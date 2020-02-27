@@ -20,4 +20,49 @@ class QuestionLikes
         return nil unless data.length > 0
         QuestionLikes.new(data.first)
     end
+
+    def self.likes_for_question_id(question_id)
+        data = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+            SELECT
+                *
+            FROM
+                users
+            JOIN
+                question_likes ON users.id = question_likes.user_id
+            WHERE
+                question_likes.question_id = ?
+        SQL
+
+        data.map { |datum| Users.new(datum) }
+    end
+
+    def self.num_likes_for_question_id(question_id)
+        data = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+            SELECT
+                COUNT(*) AS likes
+            FROM
+                questions
+            JOIN
+                question_likes ON questions.id = question_likes.question_id
+            WHERE
+                questions.id = ?
+        SQL
+    end
+
+    def self.liked_questions_for_user_id(user_id)
+        data = QuestionsDatabase.instance.execute(<<-SQL, user_id)
+            SELECT
+                *
+            FROM
+                questions
+            JOIN
+                question_likes ON questions.id = question_likes.question_id
+            WHERE
+                question_likes.user_id = ?
+        SQL
+
+        data.map { |datum| Questions.new(datum) }
+    end
+
+
 end

@@ -55,6 +55,24 @@ attr_accessor :id, :user_id, :question_id
         data.map { |datum| Questions.new(datum) }
     end
 
-    
+    def self.most_followed_questions(n)
+        data = QuestionsDatabase.instance.execute(<<-SQL, n)
+            SELECT
+                *
+            FROM
+                questions
+            JOIN
+                question_follows ON questions.id = question_follows.question_id
+            GROUP BY
+                questions.id
+            ORDER BY
+                COUNT(*) DESC
+            LIMIT
+                ?
+        SQL
+
+        data.map { |datum| Questions.new(datum) }
+    end
+
 
 end
