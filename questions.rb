@@ -2,7 +2,7 @@ require 'sqlite3'
 require_relative 'question_database.rb'
 
 class Questions
-  attr_accessor :id, :author_id
+  attr_accessor :id, :title, :body, :author_id
   def self.all
     data = QuestionsDatabase.instance.execute("SELECT * FROM Questions")
     data.map { |datum| Questions.new(datum) }

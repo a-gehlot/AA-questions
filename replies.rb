@@ -2,6 +2,8 @@ require 'sqlite3'
 require_relative 'users.rb'
 
 class Replies
+    attr_accessor :id, :question_id, :user_id, :parent_id, :body
+    
     def initialize(options)
         @id = options['id']
         @question_id = options['question_id']
