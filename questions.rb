@@ -2,6 +2,7 @@ require 'sqlite3'
 require_relative 'question_database.rb'
 
 class Questions
+  attr_accessor :id, :author_id
   def self.all
     data = QuestionsDatabase.instance.execute("SELECT * FROM Questions")
     data.map { |datum| Questions.new(datum) }
@@ -74,5 +75,36 @@ class Questions
   def num_likes
     QuestionLikes.num_likes_for_question_id(@id)
   end
+
+  def self.most_liked(n)
+    QuestionLikes.most_liked_questions(n)
+  end
+
+  def save
+    if @id.nil?
+          QuestionsDatabase.instance.execute(<<-SQL, @title, @body, @author_id)
+              INSERT INTO
+                  users (title, body, author_id)
+              VALUES
+                  (?, ?, ?)
+          SQL
+
+          @id = QuestionsDatabase.instance.last_insert_row_id
+      else
+          update
+      end
+    end
+
+    def update
+        raise "not in database" unless @id
+        QuestionsDatabase.instance.execute(<<-SQL, @title, @body, @author_id, @id)
+            UPDATE
+                users
+            SET
+                title = ?, body = ?, author_id = ?
+            WHERE
+                id = ?
+        SQL
+    end
 
 end

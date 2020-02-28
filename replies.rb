@@ -101,4 +101,31 @@ class Replies
         data.map { |datum| Replies.new(datum) }
     end
 
+    def save
+        if @id.nil?
+            QuestionsDatabase.instance.execute(<<-SQL, @question_id, @user_id, @parent_id, @body)
+                INSERT INTO
+                    users (question_id, user_id, parent_id, body)
+                VALUES
+                    (?, ?, ?, ?)
+            SQL
+
+            @id = QuestionsDatabase.instance.last_insert_row_id
+        else
+            update
+        end
+    end
+
+    def update
+        raise "not in database" unless @id
+        QuestionsDatabase.instance.execute(<<-SQL, @question_id, @user_id, @parent_id, @body, @id)
+            UPDATE
+                users
+            SET
+                question_id = ?, user_id = ?, parent_id = ?, body = ?
+            WHERE
+                id = ?
+        SQL
+    end
+
 end
